@@ -11,7 +11,6 @@ A household item image classifier was built using [Teachablemachine ](https://te
 https://www.kaggle.com/datasets/alistairking/recyclable-and-household-waste-classification
 
 
-#Todo
-Add more data and fine tune
-
+# Todo
+-Find more data and fine tune the model.
 
