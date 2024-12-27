@@ -10,17 +10,29 @@
     <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
   </head>
   <body>
-    <div id="app">
-      <h1>bluebin.it</h1>
-      <div class="camera-container">
-        <video id="video" playsinline></video>
-        <canvas id="canvas"></canvas>
+  <div id="app">
+    <header class="site-header">
+      <h1>bluebinit.com</h1>
+    </header>
+    <div class="main-content">
+      <div class="camera-section">
+        <div class="camera-container">
+          <video id="video" playsinline></video>
+          <canvas id="canvas"></canvas>
+        </div>
+        <div class="controls">
+          <button id="captureBtn">Capture Image</button>
+        </div>
       </div>
-      <div class="controls">
-        <button id="captureBtn">Capture Image</button>
-        <div id="result" class="result"></div>
+      <div class="results-section">
+        <div id="result" class="result">
+          <p>Capture an image to analyze recyclability</p>
+        </div>
       </div>
     </div>
-    <script type="module" src="/main.js"></script>
-  </body>
+  </div>
+  </div>
+</div>
+<script type="module" src="/main.js"></script>
+</body>
 </html>

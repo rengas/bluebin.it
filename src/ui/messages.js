@@ -1,3 +1,26 @@
+export function showLoading(element) {
+    element.innerHTML = `
+    <div class="loading">
+      <p>Analyzing image...</p>
+    </div>
+  `;
+}
+
+export function showError(element, message) {
+    element.innerHTML = `
+    <div class="error">
+      <p>${message}</p>
+    </div>
+  `;
+}
+
+export function showFeedbackSuccess(element) {
+    element.innerHTML += `
+    <div class="feedback-success">
+      <p>Thank you for your feedback!</p>
+    </div>
+  `;
+}
 export function displayResult(resultElement, item, isRecyclable, confidence) {
     resultElement.innerHTML = `
     <h3>Result:</h3>
@@ -16,14 +39,6 @@ export function displayResult(resultElement, item, isRecyclable, confidence) {
           No
         </button>
       </div>
-    </div>
-  `;
-}
-
-export function showFeedbackSuccess(element) {
-    element.innerHTML += `
-    <div class="feedback-success">
-      <p>Thank you for your feedback!</p>
     </div>
   `;
 }
