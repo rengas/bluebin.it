@@ -1,4 +1,5 @@
 import { saveToLocalStorage, getAllFeedback } from './storage/localstore.js';
+import {uploadImage} from "./storage/cloudstorage.js";
 
 export async function saveFeedback(imageData, prediction, isCorrect) {
     try {
@@ -12,16 +13,17 @@ export async function saveFeedback(imageData, prediction, isCorrect) {
             prediction: {
                 item: prediction.item,
                 isRecyclable: prediction.isRecyclable,
-                confidence: prediction.confidence
+                confidence: prediction.confidence,
             },
-            isCorrect
+            isCorrect:isCorrect,
         };
 
-        const existingFeedback = getAllFeedback();
-        existingFeedback.push(feedback);
 
-        const success = saveToLocalStorage('recycling-feedback', existingFeedback);
-        if (!success) throw new Error('Failed to save feedback');
+
+        const success = uploadImage(feedback);
+        if (!success) throw new Error('Failed upload image');
+
+
 
         return feedback;
     } catch (error) {
