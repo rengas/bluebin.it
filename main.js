@@ -1,5 +1,5 @@
 import './style.css';
-import { setupCamera } from './src/camera';
+import { setupCamera } from './src/camera/camera.js';
 import { setupClassifier, classifyImage } from './src/classifier';
 import { displayResult, showLoading, showError, showFeedbackSuccess } from './src/ui/messages';
 import { waitForML5 } from './src/ml5-loader';

@@ -9,7 +9,7 @@ export async function saveFeedback(imageData, prediction, isCorrect) {
         const feedback = {
             id: Date.now(),
             timestamp: new Date().toISOString(),
-            image: base64Image,
+            image: imageData,
             prediction: {
                 item: prediction.item,
                 isRecyclable: prediction.isRecyclable,

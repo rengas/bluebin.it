@@ -4,7 +4,13 @@ export async function uploadImage(feedback) {
         // 1. Get the signed URL from your server
         const response = await fetch('https://bluebinit-feedback-713592515357.us-central1.run.app', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'x-goog-meta-item':  feedback.prediction.item, // Example metadata
+                'x-goog-meta-is-recyclable': feedback.prediction.isRecyclable,
+                 'x-goog-meta-confidence': feedback.prediction.confidence,
+                 'x-goog-meta-is-correct': feedback.isCorrect
+            },
             body: JSON.stringify({ filename:feedback.timestamp }), // Send the desired filename
         });
         const { url } = await response.json();
@@ -14,11 +20,11 @@ export async function uploadImage(feedback) {
             method: 'PUT',
             body: feedback.image, // The image file
             headers: {
-                'x-goog-meta-item': feedback.prediction.item, // Example metadata
-                'x-goog-meta-isRecyclable':  feedback.prediction.isRecyclable,
-                'x-goog-meta-confidence': feedback.prediction.confidence,
-                'x-goog-meta-isCorrect': feedback.isCorrect,
-                'Content-Type': 'application/json'
+                'Content-Type': 'image/jpeg',
+                'x-goog-meta-item': feedback.prediction.item,
+                'x-goog-meta-is-recyclable': feedback.prediction.isRecyclable,
+                 'x-goog-meta-confidence': feedback.prediction.confidence,
+                 'x-goog-meta-is-correct': feedback.isCorrect
             }
         });
 

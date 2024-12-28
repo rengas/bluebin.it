@@ -20,7 +20,7 @@ export const recyclableItems = ['Aluminium Cans',
   'can', 'paper', 'cardboard', 'plastic container'];
 
 export const cameraConfig = {
-  width: 640,
-  height: 480,
+  width: 1920,
+  height: 1080,
   facingMode: 'environment'
 };
