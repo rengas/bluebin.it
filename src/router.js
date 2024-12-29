@@ -1,10 +1,10 @@
-import { Home, initHome } from './pages/Home';
+import { home, initHome } from './pages/home';
 import { about } from './pages/About';
 import { Layout } from './components/Layout';
 
 const routes = {
     '/': {
-        component: Home,
+        component: home,
         init: initHome
     },
     '/about': {

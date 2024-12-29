@@ -16,7 +16,7 @@ window.appState = state;
 // Make handleFeedback globally accessible for the onclick handlers
 window.handleFeedback = handleFeedback;
 
-export function Home() {
+export function home() {
     return `
     <div class="main-content">
       <h3 style="color: #c41e1a">Prediction is based on AI model and its prone to errors.
