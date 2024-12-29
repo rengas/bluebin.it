@@ -33,11 +33,7 @@ export function about() {
         By making it easier to recycle correctly, we're helping create a more sustainable future.</p>
        <a></a>
       </section>
-      <section class="contact">
-        <h3>Contact Us</h3>
-        <p>Have questions or suggestions? We'd love to hear from you!</p>
-        ${ContactForm()}
-      </section>
+   
       
     </div>
   `;
