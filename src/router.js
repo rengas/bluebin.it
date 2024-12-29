@@ -1,6 +1,6 @@
-import { Home, initHome } from './pages/home';
-import { about } from './pages/about';
-import { Layout } from './components/layout.js';
+import { Home, initHome } from './pages/Home';
+import { About } from './pages/About';
+import { Layout } from './components/Layout';
 
 const routes = {
     '/': {
@@ -8,10 +8,33 @@ const routes = {
         init: initHome
     },
     '/about': {
-        component: about,
+        component: About,
         init: null
     }
 };
+
+// Handle clicks on navigation links
+function handleNavigation(e) {
+    // Only handle links within our app
+    if (e.target.matches('.nav-link')) {
+        e.preventDefault();
+        const path = new URL(e.target.href).pathname;
+        history.pushState(null, '', path);
+        router();
+    }
+}
+
+// Initialize router
+export function initRouter() {
+    // Add click handler for navigation
+    document.addEventListener('click', handleNavigation);
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', router);
+
+    // Initial route
+    router();
+}
 
 export function router() {
     const path = window.location.pathname;

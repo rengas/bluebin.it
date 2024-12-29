@@ -1,6 +1,5 @@
 import './style.css';
-import { router } from './src/router';
+import { initRouter } from './src/router';
 
 // Initialize router
-window.addEventListener('popstate', router);
-router();
+initRouter();
