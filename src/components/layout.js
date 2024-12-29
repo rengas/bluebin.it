@@ -1,4 +1,4 @@
-export function Layout() {
+export function layout() {
     return `
     <header class="site-header">
       <h1>bluebinit.com</h1>

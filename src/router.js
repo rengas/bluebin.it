@@ -1,6 +1,6 @@
 import { home, initHome } from './pages/home';
 import { about } from './pages/about';
-import { Layout } from './components/Layout';
+import { layout } from './components/layout.js';
 
 const routes = {
     '/': {
@@ -43,7 +43,7 @@ export function router() {
 
     // Initialize layout if it doesn't exist
     if (!app.querySelector('.site-header')) {
-        app.innerHTML = Layout();
+        app.innerHTML = layout();
     }
 
     // Update only the main content
