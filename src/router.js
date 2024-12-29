@@ -1,5 +1,5 @@
 import { Home, initHome } from './pages/Home';
-import { About } from './pages/About';
+import { about } from './pages/About';
 import { Layout } from './components/Layout';
 
 const routes = {
@@ -8,7 +8,7 @@ const routes = {
         init: initHome
     },
     '/about': {
-        component: About,
+        component: about,
         init: null
     }
 };
