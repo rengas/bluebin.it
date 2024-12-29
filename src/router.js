@@ -1,5 +1,5 @@
-import { Home, initHome } from './pages/Home';
-import { About } from './pages/About';
+import { Home, initHome } from './pages/home';
+import { About } from './pages/about';
 import { Layout } from './components/Layout';
 
 const routes = {
