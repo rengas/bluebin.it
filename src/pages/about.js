@@ -1,4 +1,4 @@
-export function About() {
+export function about() {
     return `
     <div class="about-container">
       <h2>About BlueBinIt</h2>

@@ -1,6 +1,6 @@
 import { Home, initHome } from './pages/home';
-import { About } from './pages/about';
-import { Layout } from './components/Layout';
+import { about } from './pages/about';
+import { Layout } from './components/layout.js';
 
 const routes = {
     '/': {
@@ -8,7 +8,7 @@ const routes = {
         init: initHome
     },
     '/about': {
-        component: About,
+        component: about,
         init: null
     }
 };
