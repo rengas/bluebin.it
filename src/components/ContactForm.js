@@ -1,6 +1,14 @@
 export function ContactForm() {
     return `
-    <form name="contact" id="contactForm" class="contact-form" netlify>
+    <form 
+      name="contact" 
+      method="POST" 
+      netlify
+      class="contact-form"
+      data-netlify="true"
+    >
+      <input type="hidden" name="form-name" value="contact" />
+      
       <div class="form-group">
         <label for="name">Name</label>
         <input type="text" id="name" name="name" required>
