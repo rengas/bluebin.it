@@ -6,9 +6,5 @@ export default defineConfig({
     },
     build: {
         outDir: 'dist'
-    },
-    // Handle client-side routing in production
-    preview: {
-        port: 3000
     }
 });
