@@ -1,5 +1,5 @@
 export const recyclableItems = ['Aluminium Cans',
-  'ring pulls',
+    'ring pulls',
     'Toilet Rolls',
     'Paper towel rolls',
     'Glass Bottles',
@@ -17,10 +17,4 @@ export const recyclableItems = ['Aluminium Cans',
     'Black & white paper',
     'Food tins',
     'Gift wrapping paper',
-  'can', 'paper', 'cardboard', 'plastic container'];
-
-export const cameraConfig = {
-  width: 1920,
-  height: 1080,
-  facingMode: 'environment'
-};
+    'can', 'paper', 'cardboard', 'plastic container'];

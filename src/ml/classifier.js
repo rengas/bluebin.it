@@ -1,5 +1,3 @@
-import { recyclableItems } from './config';
-
 let ml5Instance = null;
 
 export async function setupClassifier() {
