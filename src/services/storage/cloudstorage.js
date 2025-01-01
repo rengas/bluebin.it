@@ -1,6 +1,10 @@
+import {getStoredEmail} from "./consent.js";
+
 export async function uploadImage(feedback) {
 
     try {
+
+
         // 1. Get the signed URL from your server
         const response = await fetch('https://bluebinit-feedback-713592515357.us-central1.run.app', {
             method: 'POST',
@@ -9,7 +13,8 @@ export async function uploadImage(feedback) {
                 'x-goog-meta-item':  feedback.prediction.item, // Example metadata
                 'x-goog-meta-is-recyclable': feedback.prediction.isRecyclable,
                  'x-goog-meta-confidence': feedback.prediction.confidence,
-                 'x-goog-meta-is-correct': feedback.isCorrect
+                 'x-goog-meta-is-correct': feedback.isCorrect,
+                 'x-goog-meta-email':  getStoredEmail(),
             },
             body: JSON.stringify({ filename:feedback.timestamp }), // Send the desired filename
         });
@@ -24,7 +29,8 @@ export async function uploadImage(feedback) {
                 'x-goog-meta-item': feedback.prediction.item,
                 'x-goog-meta-is-recyclable': feedback.prediction.isRecyclable,
                  'x-goog-meta-confidence': feedback.prediction.confidence,
-                 'x-goog-meta-is-correct': feedback.isCorrect
+                 'x-goog-meta-is-correct': feedback.isCorrect,
+                 'x-goog-meta-email':  getStoredEmail(),
             }
         });
 

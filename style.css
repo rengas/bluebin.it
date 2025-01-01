@@ -332,3 +332,39 @@ button:disabled {
   border-radius: 4px;
   margin-bottom: 1rem;
 }
+
+/* Add to existing CSS */
+.consent-form {
+  margin: 1rem 0;
+}
+
+.consent-email {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #1f1f1f
+}
+
+.error-message {
+  color: #d93025;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.consent-checkbox {
+  margin-top: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  color: #1f1f1f
+}
+
+.consent-checkbox input[type="checkbox"] {
+  margin-top: 0.25rem;
+}
+
+iframe { width: 100%; height: 640px; }

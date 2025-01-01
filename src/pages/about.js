@@ -33,7 +33,9 @@ export function about() {
         By making it easier to recycle correctly, we're helping create a more sustainable future.</p>
        <a></a>
       </section>
-   
+      <section class="impact">
+      <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfTWHfcGVvfRi5UL72QVI4AkriXDGu5GOwIrUHYaZFWw7ZeSw/viewform?usp=preview"></iframe>
+</section>
       
     </div>
   `;

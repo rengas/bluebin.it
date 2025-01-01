@@ -18,3 +18,5 @@ export const recyclableItems = ['Aluminium Cans',
     'Food tins',
     'Gift wrapping paper',
     'can', 'paper', 'cardboard', 'plastic container'];
+
+

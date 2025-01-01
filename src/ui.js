@@ -8,6 +8,7 @@ export function displayResult(resultElement, item, isRecyclable, confidence) {
     </p>
     <div class="feedback-section">
       <p>Was this prediction correct?</p>
+      <p>Was this prediction correct?</p>
       <div class="feedback-buttons">
         <button onclick="window.handleFeedback(true)" class="feedback-btn correct">
           Yes
