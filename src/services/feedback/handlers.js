@@ -24,7 +24,7 @@ export async function handleFeedback(isCorrect) {
         // Wait 2 seconds to show success message, then reset UI
         setTimeout(() => {
             resetUI();
-        }, 2000);
+        }, 1000);
     } catch (error) {
         showError(resultElement, 'Failed to save feedback. Please try again.');
         // Re-enable buttons on error
