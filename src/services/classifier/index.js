@@ -1,26 +1,51 @@
-import { recyclableItems } from '../../config/recyclables';
+import { geminiClient, convertCanvasToBase64 } from '../gemini';
 
-let ml5Instance = null;
+let geminiInstance = null;
 
 export async function setupClassifier() {
-    if (!ml5Instance) {
-        ml5Instance = await window.ml5.imageClassifier('MobileNet');
+    // Gemini client is already initialized as singleton
+    if (!geminiInstance) {
+        geminiInstance = geminiClient;
     }
-    return ml5Instance;
+    return geminiInstance;
 }
 
-export function classifyImage(classifier, canvas, callback) {
-    classifier.classify(canvas, (results, error) => {
-        if (error) {
-            console.error(error);
-            return;
+export async function classifyImage(classifier, canvas, callback) {
+    try {
+        // Convert canvas to base64 for Gemini API
+        const base64Image = await convertCanvasToBase64(canvas);
+        
+        // Analyze image with Gemini
+        const detections = await classifier.analyzeImage(base64Image);
+        
+        // Process the results
+        if (detections.length > 0) {
+            // Return the first detection for backward compatibility
+            // The new UI will handle multiple detections
+            const firstDetection = detections[0];
+            callback(
+                firstDetection.label, 
+                firstDetection.recyclable, 
+                1.0, // Gemini doesn't provide confidence scores in the same way
+                detections // Pass all detections for the new UI
+            );
+        } else {
+            // No recyclable items detected
+            callback(
+                'No recyclable items detected', 
+                false, 
+                0.0,
+                []
+            );
         }
-
-        const item = results[0].label.toLowerCase();
-        const isRecyclable = recyclableItems.some(recyclable =>
-            item.includes(recyclable)
+    } catch (error) {
+        console.error('Error in classifyImage:', error);
+        // Fallback to indicate error
+        callback(
+            'Error analyzing image', 
+            false, 
+            0.0,
+            []
         );
-
-        callback(item, isRecyclable, results[0].confidence);
-    });
+    }
 }

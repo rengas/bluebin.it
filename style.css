@@ -368,3 +368,66 @@ button:disabled {
 }
 
 iframe { width: 100%; height: 640px; }
+
+/* Detection Overlay Styles */
+.detection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.camera-container {
+  position: relative;
+}
+
+/* Enhanced loading state for API calls */
+.loading.api-call {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #1a73e8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Detection results styling */
+.detection-summary {
+  background: linear-gradient(135deg, #e6f4ea 0%, #f8fff8 100%);
+  border: 1px solid #1e8e3e;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.detection-summary ul {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.detection-summary li {
+  margin: 0.5rem 0;
+  color: #1e8e3e;
+  font-weight: 500;
+}
+
+/* Responsive adjustments for overlay */
+@media (max-width: 768px) {
+  .detection-overlay {
+    max-width: 100%;
+    height: auto;
+  }
+}
