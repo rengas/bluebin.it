@@ -7,7 +7,8 @@ import { handleFeedback } from '../services/feedback/handlers';
 const state = {
     isProcessing: false,
     currentImageData: null,
-    currentPrediction: null
+    currentPrediction: null,
+    currentDetections: []
 };
 
 // Make state globally accessible for feedback handling

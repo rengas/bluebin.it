@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 *.bolt
+.env
+.idea
+node_modules
+functions/.env
