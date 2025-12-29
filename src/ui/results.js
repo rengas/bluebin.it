@@ -48,6 +48,7 @@ function displayTextResult(resultElement, item, isRecyclable, confidence) {
 }
 
 export function drawDetectionsOnPreview(previewContainer, detections, imageWidth, imageHeight) {
+
     if (!Array.isArray(detections) || detections.length === 0) {
         return;
     }
@@ -58,25 +59,42 @@ export function drawDetectionsOnPreview(previewContainer, detections, imageWidth
         existingOverlay.remove();
     }
 
-    // Find the preview image
+    // Find preview image
     const previewImage = previewContainer.querySelector('img');
-    if (!previewImage) return;
+    if (!previewImage) {
+        return;
+    }
+    
+
 
     // Create overlay canvas
     const overlay = document.createElement('canvas');
     overlay.className = 'detection-overlay';
+    
+    // Get the actual displayed dimensions of the preview image
+    const displayWidth = previewImage.offsetWidth || previewImage.naturalWidth;
+    const displayHeight = previewImage.offsetHeight || previewImage.naturalHeight;
+    const canvasWidth = imageWidth || previewImage.naturalWidth;
+    const canvasHeight = imageHeight || previewImage.naturalHeight;
+    
+    // Calculate scale factors
+    const scaleX = displayWidth / canvasWidth;
+    const scaleY = displayHeight / canvasHeight;
+    
     overlay.style.cssText = `
         position: absolute;
         top: 0;
         left: 0;
         pointer-events: none;
         z-index: 10;
+        width: ${displayWidth}px;
+        height: ${displayHeight}px;
     `;
     
-    // Set overlay size to match preview image
-    overlay.width = imageWidth || previewImage.naturalWidth;
-    overlay.height = imageHeight || previewImage.naturalHeight;
-    
+    // Set overlay size to match displayed preview image
+    overlay.width = displayWidth;
+    overlay.height = displayHeight;
+
     // Make sure preview container is positioned relative
     previewContainer.style.position = 'relative';
     
@@ -93,21 +111,35 @@ export function drawDetectionsOnPreview(previewContainer, detections, imageWidth
     ctx.font = 'bold 14px Arial';
     ctx.fillStyle = '#1e8e3e';
     
-    detections.forEach(detection => {
+    detections.forEach((detection, index) => {
+        console.log(`Processing detection ${index}:`, detection);
         if (detection.recyclable && detection.box_2d) {
-            // Convert relative coordinates to pixel coordinates
-            const box = normalizeBoundingBox(detection.box_2d, overlay.width, overlay.height);
+            // Convert relative coordinates to pixel coordinates using canvas dimensions
+            // then scale to display dimensions
+            const canvasBox = normalizeBoundingBox(detection.box_2d, canvasWidth, canvasHeight);
             
-            // Draw bounding box
-            ctx.strokeRect(box.x, box.y, box.width, box.height);
+            // Scale canvas coordinates to display coordinates
+            const displayBox = {
+                x: canvasBox.x * scaleX,
+                y: canvasBox.y * scaleY,
+                width: canvasBox.width * scaleX,
+                height: canvasBox.height * scaleY
+            };
+            
+            console.log(`Canvas box ${index}:`, canvasBox);
+            console.log(`Display box ${index}:`, displayBox);
+            
+            // Draw bounding box using display coordinates
+            ctx.strokeRect(displayBox.x, displayBox.y, displayBox.width, displayBox.height);
             
             // Draw checkmark
-            drawCheckmark(ctx, box.x, box.y);
+            drawCheckmark(ctx, displayBox.x, displayBox.y);
             
             // Draw label
-            ctx.fillText(detection.label, box.x + 20, box.y + 15);
+            ctx.fillText(detection.label, displayBox.x + 20, displayBox.y + 15);
         }
     });
+    
 }
 
 function drawCheckmark(ctx, x, y) {

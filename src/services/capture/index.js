@@ -65,7 +65,24 @@ export async function captureImage(video, canvas, classifier, state) {
                 `;
 
                 // Classify image with Gemini
-                await classifyImage(classifier, canvas, (item, isRecyclable, confidence, detections = []) => {
+                await classifyImage(classifier, canvas, (...args) => {
+                    // Handle both individual parameters and object parameter formats
+                    let item, isRecyclable, confidence, detections = [];
+                    
+                    if (args.length === 1 && typeof args[0] === 'object') {
+                        // Parameters passed as object
+                        const params = args[0];
+                        item = params.item;
+                        isRecyclable = params.isRecyclable;
+                        confidence = params.confidence;
+                        detections = params.detections || [];
+                    } else {
+                        // Parameters passed as individual arguments
+                        [item, isRecyclable, confidence, detections] = args;
+                    }
+                    
+                    console.log('Classifier callback received:', { item, isRecyclable, confidence, detections });
+                    
                     // Update state with all detections
                     state.currentPrediction = { item, isRecyclable, confidence, detections };
                     
@@ -77,6 +94,8 @@ export async function captureImage(video, canvas, classifier, state) {
                         // Get image dimensions from the captured canvas
                         const imageWidth = canvas.width;
                         const imageHeight = canvas.height;
+                        
+                        console.log('Calling drawDetectionsOnPreview with:', { detections, imageWidth, imageHeight });
                         
                         // Draw overlay on preview container
                         drawDetectionsOnPreview(previewElement, detections, imageWidth, imageHeight);
