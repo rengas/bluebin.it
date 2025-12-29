@@ -2,7 +2,7 @@ const functions = require('@google-cloud/functions-framework');
 const fetch = require('node-fetch');
 
 // Configuration
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Blue Bin Recyclable items for Singapore context

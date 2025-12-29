@@ -1,76 +1,94 @@
 #!/bin/bash
 
 # Deployment script for BlueBin.it Gemini Cloud Function to Singapore region
-# This script deploys the cloud function to asia-southeast1 (Singapore)
+# Region: asia-southeast1 (Singapore)
 
-echo "🚀 Deploying BlueBin.it Gemini Cloud Function to Singapore region..."
-echo "Region: asia-southeast1"
+# --- Configuration ---
+FUNCTION_NAME="analyzeImage"
+REGION="asia-southeast1"
+ENTRY_POINT="analyzeImage"
+RUNTIME="nodejs20"
+SOURCE_DIR="functions/gemini-detector"
 
-# Check if gcloud CLI is installed
+echo "🚀 Starting deployment for ${FUNCTION_NAME}..."
+
+# 1. Check gcloud
 if ! command -v gcloud &> /dev/null; then
     echo "❌ Error: gcloud CLI is not installed."
-    echo "Please install it first: https://cloud.google.com/sdk/docs/install"
     exit 1
 fi
 
-# Check if user is logged in
-if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" | grep -q "."; then
-    echo "❌ Error: Not logged into Google Cloud."
-    echo "Please run: gcloud auth login"
+# 2. Check Login and Project
+CURRENT_PROJECT=$(gcloud config get-value project 2> /dev/null)
+if [ -z "$CURRENT_PROJECT" ]; then
+    echo "❌ Error: No Google Cloud project selected."
+    echo "Run: gcloud config set project YOUR_PROJECT_ID"
+    exit 1
+fi
+echo "📍 Target Project: $CURRENT_PROJECT"
+echo "📍 Target Region:  $REGION"
+
+# 3. Navigate safely to function directory
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "❌ Error: Directory '$SOURCE_DIR' not found."
+    echo "Make sure you are running this script from the project root."
+    exit 1
+fi
+cd "$SOURCE_DIR" || exit 1
+
+# 4. API Key Check
+if [ ! -f ".env" ]; then
+    echo "❌ Error: .env file not found in $SOURCE_DIR"
     exit 1
 fi
 
-# Navigate to function directory
-cd functions/gemini-detector
+# Robustly extract API Key (handles quotes and spaces better)
+API_KEY=$(grep "^GEMINI_API_KEY=" .env | cut -d'=' -f2- | tr -d '"' | tr -d "'")
 
-# Check if .env file exists with API key
-if [ ! -f ".env" ] || ! grep -q "GEMINI_API_KEY=" .env || grep -q "your_gemini_api_key_here" .env; then
-    echo "❌ Error: Gemini API key not configured."
-    echo "Please edit functions/gemini-detector/.env and add your API key:"
-    echo "GEMINI_API_KEY=your_actual_api_key_here"
+if [[ -z "$API_KEY" ]] || [[ "$API_KEY" == *"your_gemini"* ]]; then
+    echo "❌ Error: Invalid or missing GEMINI_API_KEY in .env"
     exit 1
 fi
 
-# Extract API key from .env
-API_KEY=$(grep "GEMINI_API_KEY=" .env | cut -d'=' -f2)
+echo "🔐 API Key found (ends in ...${API_KEY: -4})"
 
-echo "📋 Configuration:"
-echo "  Function Name: analyzeImage"
-echo "  Region: asia-southeast1 (Singapore)"
-echo "  Runtime: nodejs20"
-echo "  Authentication: Allow unauthenticated"
-echo "  API Key: ${API_KEY:0:10}..."
-
-# Deploy the function
+# 5. Deploy
 echo ""
-echo "🌍 Deploying to Google Cloud Functions..."
-gcloud functions deploy analyzeImage \
-    --runtime=nodejs20 \
+echo "🌍 Deploying to Google Cloud Functions (Singapore)..."
+
+# Added --gen2 for better performance (Optional: remove --gen2 if you strictly need Gen 1)
+# Added --quiet to prevent interactive prompts from blocking the script
+gcloud functions deploy $FUNCTION_NAME \
+    --gen2 \
+    --runtime=$RUNTIME \
+    --region=$REGION \
+    --source=. \
+    --entry-point=$ENTRY_POINT \
     --trigger-http \
     --allow-unauthenticated \
-    --entry-point=analyzeImage \
-    --region=asia-southeast1 \
-    --set-env-vars=GEMINI_API_KEY=${API_KEY} \
+    --set-env-vars=GEMINI_API_KEY="${API_KEY}" \
     --memory=512MiB \
-    --timeout=60s
+    --timeout=60s \
+    --quiet
 
-# Check deployment result
+# 6. Result & Dynamic URL Retrieval
 if [ $? -eq 0 ]; then
+    # Dynamically fetch the actual URL assigned by Google (Works for Gen 1 and Gen 2)
+    FUNCTION_URL=$(gcloud functions describe $FUNCTION_NAME --region=$REGION --format='value(serviceConfig.uri)')
+
     echo ""
     echo "✅ Deployment successful!"
-    echo ""
+    echo "--------------------------------------------------"
+    echo "🔗 Function URL: $FUNCTION_URL"
+    echo "--------------------------------------------------"
     echo "📝 Next steps:"
-    echo "1. Update your production environment variable:"
-    echo "   VITE_GEMINI_CLOUD_FUNCTION_URL=https://asia-southeast1-\$(gcloud config get-value project).cloudfunctions.net/analyzeImage"
+    echo "1. Update your frontend .env:"
+    echo "   VITE_GEMINI_CLOUD_FUNCTION_URL=$FUNCTION_URL"
     echo ""
-    echo "2. Test the deployed function:"
-    echo "   curl https://asia-southeast1-\$(gcloud config get-value project).cloudfunctions.net/health"
-    echo ""
-    echo "3. Monitor the function:"
-    echo "   https://console.cloud.google.com/functions/list?project=\$(gcloud config get-value project)"
+    echo "2. Test with curl:"
+    echo "   curl -X POST $FUNCTION_URL -H 'Content-Type: application/json' -d '{}'"
 else
     echo ""
-    echo "❌ Deployment failed!"
-    echo "Please check the error message above and try again."
+    echo "❌ Deployment failed."
     exit 1
 fi

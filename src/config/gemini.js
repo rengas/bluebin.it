@@ -1,15 +1,13 @@
 // Google Cloud Gemini Configuration
 export const GEMINI_CONFIG = {
     // Cloud Function endpoint for secure Gemini API access
-    CLOUD_FUNCTION_URL: process.env.GEMINI_CLOUD_FUNCTION_URL || 'https://us-central1-your-project.cloudfunctions.net/analyzeImage',
+    CLOUD_FUNCTION_URL: 'https://asia-southeast1-your-project.cloudfunctions.net/analyzeImage',
     
     // Local development endpoint
     LOCAL_FUNCTION_URL: 'http://localhost:8080/analyzeImage',
     
     // Health check endpoint
-    HEALTH_CHECK_URL: process.env.GEMINI_CLOUD_FUNCTION_URL ? 
-        process.env.GEMINI_CLOUD_FUNCTION_URL.replace('/analyzeImage', '/health') : 
-        'https://us-central1-your-project.cloudfunctions.net/health',
+    HEALTH_CHECK_URL: 'https://asia-southeast1-your-project.cloudfunctions.net/health',
     
     // Model configuration (for reference only - now handled by cloud function)
     MODEL_NAME: 'gemini-1.5-flash',
@@ -87,10 +85,6 @@ export function getCloudFunctionUrl() {
         return import.meta.env.VITE_GEMINI_CLOUD_FUNCTION_URL;
     }
     
-    // Fallback for legacy Node.js environment variable
-    if (typeof process !== 'undefined' && process.env?.GEMINI_CLOUD_FUNCTION_URL) {
-        return process.env.GEMINI_CLOUD_FUNCTION_URL;
-    }
     
     // Check if we're in development mode and use local function
     if (typeof import.meta !== 'undefined' && import.meta.env?.DEV) {
@@ -110,7 +104,7 @@ export function getHealthCheckUrl() {
 // Check if cloud function is configured
 export function isCloudFunctionConfigured() {
     const url = getCloudFunctionUrl();
-    return url && url !== '' && url !== 'https://us-central1-your-project.cloudfunctions.net/analyzeImage';
+    return url && url !== '' && url !== 'https://asia-southeast1-your-project.cloudfunctions.net/analyzeImage';
 }
 
 // Determine if we should use local development endpoint
