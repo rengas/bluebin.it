@@ -55,7 +55,15 @@ export async function initHome() {
         // Setup capture button
         const captureBtn = document.getElementById('captureBtn');
         captureBtn.addEventListener('click', () => {
-            captureImage(video, document.getElementById('canvas'), classifier, state);
+            // Test with lower resolution (50% scale) and lower quality for smaller file sizes
+            // You can adjust these values: scaleFactor (0.1-1.0), quality (0.1-1.0)
+            const options = {
+                scaleFactor: 0.5,  // Half resolution for faster processing
+                quality: 0.7       // Slightly lower JPEG quality for smaller files
+            };
+            
+            console.log('Testing lower resolution capture with options:', options);
+            captureImage(video, document.getElementById('canvas'), classifier, state, options);
         });
 
         // Re-assign handleFeedback to window after page initialization

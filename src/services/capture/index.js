@@ -4,19 +4,37 @@ import { displayResult, drawDetectionsOnPreview, clearDetectionOverlay } from '.
 import { classifyImage } from '../classifier';
 import { geminiClient } from '../gemini';
 
-function captureFrame(video, canvas) {
+function captureFrame(video, canvas, scaleFactor = 1.0, quality = 0.9) {
     const context = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    
+    // Log original video dimensions
+    console.log(`Original video dimensions: ${video.videoWidth}x${video.videoHeight}`);
+    
+    // Apply scaling factor for lower resolution
+    canvas.width = Math.floor(video.videoWidth * scaleFactor);
+    canvas.height = Math.floor(video.videoHeight * scaleFactor);
+    
+    console.log(`Capturing at scaled dimensions: ${canvas.width}x${canvas.height} (scale factor: ${scaleFactor})`);
+    
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     return new Promise((resolve) => {
-        canvas.toBlob(resolve, 'image/jpeg', 0.9);
+        canvas.toBlob((blob) => {
+            if (blob) {
+                console.log(`Captured image size: ${blob.size} bytes (${(blob.size / 1024).toFixed(2)} KB)`);
+            }
+            resolve(blob);
+        }, 'image/jpeg', quality);
     });
 }
 
-export async function captureImage(video, canvas, classifier, state) {
+export async function captureImage(video, canvas, classifier, state, options = {}) {
     if (state.isProcessing) return;
+
+    // Set default options for resolution and quality
+    const { scaleFactor = 1.0, quality = 0.9 } = options;
+    
+    console.log(`Capturing image with options:`, { scaleFactor, quality });
 
     const resultElement = document.getElementById('result');
     const previewElement = document.querySelector('.preview-container');
@@ -42,8 +60,8 @@ export async function captureImage(video, canvas, classifier, state) {
             return;
         }
 
-        // Capture frame using canvas
-        const blob = await captureFrame(video, canvas);
+        // Capture frame using canvas with configurable resolution and quality
+        const blob = await captureFrame(video, canvas, scaleFactor, quality);
         state.currentImageData = blob;
         
         // Show preview image

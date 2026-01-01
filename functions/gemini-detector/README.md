@@ -1,14 +1,18 @@
-# Gemini Detector Cloud Function
+# Gemini Robotics Detector Cloud Function
 
-This Google Cloud Function provides a secure API endpoint for detecting recyclable items in images using Google's Gemini AI model.
+This Google Cloud Function provides a secure API endpoint for detecting recyclable items in images using Google's **Gemini Robotics-ER 1.5** model, specifically optimized for robotics and automated sorting applications.
 
 ## Features
 
+- **Robotics-Optimized**: Uses Gemini Robotics-ER 1.5 model designed for precise spatial detection
+- **Enhanced Precision**: Optimized for robotic manipulation and automated sorting systems
 - **Secure**: API key is stored securely in Google Cloud environment variables
 - **Serverless**: Automatically scales based on demand
 - **CORS Support**: Cross-origin requests are enabled for web applications
 - **Error Handling**: Comprehensive error handling and logging
 - **Validation**: Input validation for image data and response format
+- **Label Normalization**: Consistent item labeling for robotic system integration
+- **Bounding Box Precision**: Enhanced coordinate validation for robotic arm positioning
 
 ## API Endpoint
 

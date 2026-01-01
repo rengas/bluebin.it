@@ -2,7 +2,7 @@ const functions = require('@google-cloud/functions-framework');
 const fetch = require('node-fetch');
 
 // Configuration
-const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-robotics-er-1.5-preview:generateContent';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Blue Bin Recyclable items for Singapore context
@@ -32,26 +32,26 @@ const RECYCLABLE_CATEGORIES = [
     'plastic container'
 ];
 
-// Detection prompt template
-const DETECTION_PROMPT = `Analyze this image and identify ONLY objects that are Blue Bin Recyclable items. 
+// Detection prompt template optimized for Gemini Robotics-ER 1.5
+const DETECTION_PROMPT = `As a robotics vision system, analyze this image and identify ONLY objects that are Blue Bin Recyclable items for automated sorting in Singapore's recycling system.
 
-Blue Bin Recyclable items include:
-- Aluminium Cans and ring pulls
-- Glass Bottles and Jars
-- Aerosol Cans
-- Empty Food Cans
-- Plastic containers (bottles, containers, trays)
+TARGET RECYCLABLE ITEMS FOR ROBOTIC DETECTION:
+- Aluminium Cans and ring pulls (metal containers)
+- Glass Bottles and Jars (transparent containers)
+- Aerosol Cans (metal containers)
+- Empty Food Cans (metal containers)
+- Plastic containers (bottles, containers, trays - PET/HDPE)
 - Paper items (newspapers, magazines, cardboard, paper bags without handles)
 - Metal caps and lids
-- Toilet rolls and paper towel rolls
+- Toilet rolls and paper towel rolls (cardboard tubes)
 
-IMPORTANT:
-1. Return ONLY items that are definitely recyclable in Blue Bins
-2. For each recyclable item detected, provide a 2D bounding box in format [x_min, y_min, width, height]
-3. Return response as a valid JSON array
-4. If no recyclable items are found, return an empty array []
+ROBOTIC VISION REQUIREMENTS:
+1. HIGH PRECISION: Return ONLY items that are definitely recyclable in Blue Bins
+2. SPATIAL MAPPING: For each recyclable item detected, provide precise 2D bounding box coordinates [x_min, y_min, width, height] for robotic manipulation
+3. STRUCTURED OUTPUT: Return response as a valid JSON array for robotic system integration
+4. FAIL-SAFE: If no recyclable items are found, return an empty array []
 
-Response format:
+STANDARDIZED RESPONSE FORMAT:
 [
   {
     "label": "Plastic Bottle",
@@ -60,7 +60,9 @@ Response format:
   }
 ]
 
-The bounding box coordinates should be relative to image dimensions (0.0 to 1.0).`;
+COORDINATE SYSTEM: Bounding box coordinates must be relative to image dimensions (0.0 to 1.0) for robotic arm positioning.
+
+ROBOTIC ACCURACY NOTES: Focus on clear, unobstructed items suitable for robotic grasping. Avoid ambiguous or partially visible objects.`;
 
 /**
  * Separate main analysis logic for clarity
@@ -177,10 +179,12 @@ async function callGeminiAPI(imageBase64) {
             ]
         }],
         generationConfig: {
-            temperature: 0.1,
-            topK: 32,
-            topP: 1,
+            temperature: 0.1,  // Low temperature for consistent robotic detection
+            topK: 20,          // Reduced for more focused predictions
+            topP: 0.95,        // Slightly reduced for precision
             maxOutputTokens: 4096,
+            candidateCount: 1,  // Single best response for robotics
+            stopSequences: []  // Let model determine completion
         }
     };
 
@@ -202,41 +206,129 @@ async function callGeminiAPI(imageBase64) {
 }
 
 /**
- * Parse and validate Gemini API response
+ * Parse and validate Gemini Robotics API response
  */
 function parseGeminiResponse(data) {
     try {
         const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!content) {
-            console.warn('No content found in Gemini response');
+            console.warn('No content found in Gemini Robotics response');
             return [];
         }
 
-        // Extract JSON from the response
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        console.log('Raw Robotics response:', content);
+
+        // Enhanced JSON extraction for Robotics model responses
+        let jsonMatch = content.match(/\[[\s\S]*\]/);
         if (!jsonMatch) {
-            console.warn('No JSON array found in Gemini response:', content);
+            // Try alternative JSON extraction patterns
+            jsonMatch = content.match(/```json\s*(\[[\s\S]*?\])\s*```/) || 
+                        content.match(/(\[[\s\S]*?\])/);
+        }
+
+        if (!jsonMatch) {
+            console.warn('No JSON array found in Gemini Robotics response:', content);
             return [];
         }
 
-        const detections = JSON.parse(jsonMatch[0]);
+        const jsonString = jsonMatch[1] || jsonMatch[0];
+        console.log('Extracted JSON:', jsonString);
+
+        const detections = JSON.parse(jsonString);
         
-        // Validate and format the response
-        return detections.map(detection => ({
-            label: detection.label || 'Unknown',
-            box_2d: detection.box_2d || [0, 0, 0, 0],
-            recyclable: detection.recyclable === true
-        })).filter(detection => {
-            // Filter out invalid detections
+        // Enhanced validation and formatting for robotics applications
+        return detections.map(detection => {
+            // Normalize label for robotics consistency
+            const normalizedLabel = normalizeRecyclableLabel(detection.label);
+            
+            // Enhanced bounding box validation for robotics
+            const box2d = normalizeBoundingBox(detection.box_2d);
+            
+            return {
+                label: normalizedLabel,
+                box_2d: box2d,
+                recyclable: detection.recyclable === true && normalizedLabel !== 'Unknown'
+            };
+        }).filter(detection => {
+            // Enhanced filtering for robotic precision requirements
             return detection.label !== 'Unknown' && 
                    Array.isArray(detection.box_2d) && 
                    detection.box_2d.length === 4 &&
-                   validateBoundingBox(detection.box_2d);
+                   validateBoundingBox(detection.box_2d) &&
+                   detection.recyclable === true;
         });
     } catch (error) {
-        console.error('Error parsing Gemini response:', error);
+        console.error('Error parsing Gemini Robotics response:', error);
+        console.error('Response data:', JSON.stringify(data, null, 2));
         return [];
     }
+}
+
+/**
+ * Normalize recyclable item labels for consistency
+ */
+function normalizeRecyclableLabel(label) {
+    if (!label || typeof label !== 'string') return 'Unknown';
+    
+    const normalized = label.toLowerCase().trim();
+    
+    // Map common variations to standardized labels
+    const labelMappings = {
+        'plastic bottle': 'Plastic Bottle',
+        'bottle': 'Plastic Bottle',
+        'aluminum can': 'Aluminium Can',
+        'aluminium can': 'Aluminium Can',
+        'can': 'Aluminium Can',
+        'glass bottle': 'Glass Bottle',
+        'jar': 'Glass Jar',
+        'cardboard': 'Cardboard',
+        'paper': 'Paper',
+        'newspaper': 'Newspaper',
+        'magazine': 'Magazine'
+    };
+    
+    // Find matching normalized label
+    for (const [key, value] of Object.entries(labelMappings)) {
+        if (normalized.includes(key)) {
+            return value;
+        }
+    }
+    
+    // Check if it's a known recyclable category
+    const knownCategories = [
+        'Plastic Bottle', 'Aluminium Can', 'Glass Bottle', 'Glass Jar',
+        'Cardboard', 'Paper', 'Newspaper', 'Magazine', 'Metal Cap', 'Lid'
+    ];
+    
+    for (const category of knownCategories) {
+        if (normalized.includes(category.toLowerCase())) {
+            return category;
+        }
+    }
+    
+    return 'Unknown';
+}
+
+/**
+ * Normalize bounding box coordinates for robotics precision
+ */
+function normalizeBoundingBox(box2d) {
+    if (!Array.isArray(box2d) || box2d.length !== 4) {
+        return [0, 0, 0, 0];
+    }
+    
+    const [xMin, yMin, width, height] = box2d.map(coord => {
+        // Ensure coordinates are numbers and within valid range
+        const num = parseFloat(coord);
+        if (isNaN(num)) return 0;
+        return Math.max(0, Math.min(1, num));
+    });
+    
+    // Ensure valid dimensions for robotic manipulation
+    const normalizedWidth = Math.max(0.01, Math.min(1, width));
+    const normalizedHeight = Math.max(0.01, Math.min(1, height));
+    
+    return [xMin, yMin, normalizedWidth, normalizedHeight];
 }
 
 /**
